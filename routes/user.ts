@@ -1,5 +1,7 @@
 import { Router } from "express";
+import { check } from "express-validator";
 import { deleteUsuario, getUsuario, getUsuarios, postUsuario, putUsuario } from "../controllers/user";
+import { validation } from "../middlewares/validate-fields";
 
 const router = Router();
 
@@ -17,7 +19,13 @@ router.get(
 
 router.post(
     '/',
-    [],
+    [
+        check( 'email', 'El nombre es obligatorio' ).isEmail(),
+        check( 'name', 'El nombre es obligatorio' ).notEmpty(),
+        check( 'lastname', 'El apellido es obligatorio' ).notEmpty(),
+        check( 'password', 'La contraseña es obligatoria' ).notEmpty(),
+        validation
+    ],
     postUsuario
 );
 
