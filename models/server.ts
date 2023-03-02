@@ -1,12 +1,17 @@
 import express, { Application } from "express";
+
 import users from "../routes/user";
+import auth  from "../routes/auth";
+
 import cors from "cors";
+import db from "../db/connection";
 
 class Server{
 
     private app: Application;
     private port: string;
     private apiPaths = {
+        auth : '/api/auth',
         users: '/api/users',
     }
 
@@ -14,11 +19,25 @@ class Server{
         this.app = express();
         this.port = process.env.PORT || '8000';
 
+        this.connectionDB();
+
         // middlewares
         this.middlewares();
 
         // routes
         this.routes();
+    }
+
+    async connectionDB(){
+        try {
+
+            await db();
+            
+            
+        } catch (error) {
+            console.log( error );
+            
+        }
     }
 
     middlewares(){
@@ -34,6 +53,7 @@ class Server{
 
     routes(){
         this.app.use( this.apiPaths.users, users );
+        this.app.use( this.apiPaths.auth, auth );
     }
 
     listen(){
