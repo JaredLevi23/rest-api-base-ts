@@ -42,6 +42,9 @@ export const postUsuario = async ( req: Request, res: Response ) =>{
     const salt = bcryptjs.genSaltSync();
     user.password = bcryptjs.hashSync( password, salt );
     await user.save();
+
+    // Enviar verificacion 
+
     res.status(200).json({
         msg: 'User created',
         user
@@ -49,24 +52,40 @@ export const postUsuario = async ( req: Request, res: Response ) =>{
 }
 
 
-export const putUsuario = ( req: Request, res: Response ) =>{
+export const putUsuario = async ( req: Request, res: Response ) =>{
 
     const { id } = req.params;
+    const { google, ...data } = req.body;
+
+    const user = await User.findByIdAndUpdate( id, data, { new: true } );
+
+    if( !user ){
+        return res.status( 406 ).json({
+            msg: 'El usuario no existe'
+        });
+    }
 
     res.status(200).json({
-        msg: 'put',
-        id
+        msg: 'Usuario actualizado',
+        user
     });
 }
 
 
-export const deleteUsuario = ( req: Request, res: Response ) =>{
+export const deleteUsuario = async ( req: Request, res: Response ) =>{
 
     const { id } = req.params;
+    const user = await User.findByIdAndUpdate( id, { enabled: false }, { new: true } );
+
+    if( !user ){
+        return res.status( 406 ).json({
+            msg: 'El usuario no existe'
+        });
+    }
 
     res.status(200).json({
-        msg: 'delete',
-        id
+        msg: 'Usuario Desactivado',
+        user
     });
 }
 

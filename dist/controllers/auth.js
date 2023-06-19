@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.userAuthentication = void 0;
+exports.restorePassword = exports.userAuthentication = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const users_1 = __importDefault(require("../models/users"));
 const generate_jwt_1 = __importDefault(require("../helpers/generate_jwt"));
@@ -50,4 +50,19 @@ const userAuthentication = (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
 });
 exports.userAuthentication = userAuthentication;
+const restorePassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email } = req.body;
+    const user = yield users_1.default.where({ email }).findOne();
+    if (!user) {
+        return res.status(400).json({
+            msg: 'El correo electronico no existe'
+        });
+    }
+    // Enviar correo
+    return res.status(200).json({
+        msg: 'Se ha enviado el correo electronico para restablecer su contraseña',
+        email
+    });
+});
+exports.restorePassword = restorePassword;
 //# sourceMappingURL=auth.js.map

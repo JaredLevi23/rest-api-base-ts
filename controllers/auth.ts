@@ -43,5 +43,24 @@ export const userAuthentication = async ( req: Request, res: Response ) => {
             msg: error
         });
     }
+}
 
+export const restorePassword = async ( req: Request, res: Response ) => {
+
+    const { email } = req.body;
+
+    const user = await User.where( { email } ).findOne();
+
+    if( !user ){
+        return res.status( 400 ).json({
+            msg: 'El correo electronico no existe'
+        });
+    }
+
+    // Enviar correo
+
+    return res.status( 200 ).json({
+        msg: 'Se ha enviado el correo electronico para restablecer su contraseña',
+        email
+    });
 }

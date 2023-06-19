@@ -1,10 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import User from "../models/users";
 
-
-
-const validarJWT = async( req: Request, res: Response, next: NextFunction )=>{
+export const validarJWT = async( req: Request, res: Response, next: NextFunction )=>{
     const token = req.header('x-token');
 
     if( !token ){
@@ -14,36 +12,29 @@ const validarJWT = async( req: Request, res: Response, next: NextFunction )=>{
     }
 
     try {
-        const uid = jwt.verify( token, process.env.SECRETORPRIVATEKEY! );
-        const userAutenticado =await User.findById( uid );
+        const { uid } = jwt.verify( token, process.env.SECRETORPRIVATEKEY ?? '' ) as JwtPayload;
+        const userAuth =await User.findOne( { '_id': uid });
 
-        console.log( uid );
-
-        if( !userAutenticado){
+        if( !userAuth){
             return res.status(401).json({
                 msg: 'Token no valido - Usuario no existe'
             });
         }
         // //Verificar si el usuario esta activo
+        if( !userAuth.enabled ){
+            return res.status(401).json({
+                msg: 'Usuario desactivado'
+            });
+        }
 
-        // if( !userAutenticado.state ){
-        //     return res.status(401).json({
-        //         msg: 'Token no valido - Usuario desactivado'
-        //     });
-        // }
+        
 
-        // req.usuario = userAutenticado;
-        // next();
+        next();
 
     } catch (error) {
-        console.log(error);
         res.status(401).json({
             msg:'Token no valido'
         });
     }
 
-}
-
-module.exports = {
-    validarJWT
 }

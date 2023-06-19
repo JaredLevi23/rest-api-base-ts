@@ -13,14 +13,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const user_1 = __importDefault(require("../routes/user"));
 const auth_1 = __importDefault(require("../routes/auth"));
+const categories_1 = __importDefault(require("../routes/categories"));
+const products_1 = __importDefault(require("../routes/products"));
+const user_1 = __importDefault(require("../routes/user"));
+const car_1 = __importDefault(require("../routes/car"));
+const shop_1 = __importDefault(require("../routes/shop"));
 const cors_1 = __importDefault(require("cors"));
 const connection_1 = __importDefault(require("../db/connection"));
 class Server {
     constructor() {
         this.apiPaths = {
             auth: '/api/auth',
+            car: '/api/car',
+            categories: '/api/categories',
+            products: '/api/products',
+            shop: '/api/shop',
             users: '/api/users',
         };
         this.app = (0, express_1.default)();
@@ -50,8 +58,12 @@ class Server {
         this.app.use(express_1.default.static('public'));
     }
     routes() {
-        this.app.use(this.apiPaths.users, user_1.default);
         this.app.use(this.apiPaths.auth, auth_1.default);
+        this.app.use(this.apiPaths.categories, categories_1.default);
+        this.app.use(this.apiPaths.products, products_1.default);
+        this.app.use(this.apiPaths.users, user_1.default);
+        this.app.use(this.apiPaths.car, car_1.default);
+        this.app.use(this.apiPaths.shop, shop_1.default);
     }
     listen() {
         this.app.listen(this.port, () => {

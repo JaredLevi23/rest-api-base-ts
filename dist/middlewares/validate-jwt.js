@@ -12,9 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.validarJWT = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const users_1 = __importDefault(require("../models/users"));
 const validarJWT = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const token = req.header('x-token');
     if (!token) {
         return res.status(401).json({
@@ -22,31 +24,26 @@ const validarJWT = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         });
     }
     try {
-        const uid = jsonwebtoken_1.default.verify(token, process.env.SECRETORPRIVATEKEY);
-        const userAutenticado = yield users_1.default.findById(uid);
-        console.log(uid);
-        if (!userAutenticado) {
+        const { uid } = jsonwebtoken_1.default.verify(token, (_a = process.env.SECRETORPRIVATEKEY) !== null && _a !== void 0 ? _a : '');
+        const userAuth = yield users_1.default.findOne({ '_id': uid });
+        if (!userAuth) {
             return res.status(401).json({
                 msg: 'Token no valido - Usuario no existe'
             });
         }
         // //Verificar si el usuario esta activo
-        // if( !userAutenticado.state ){
-        //     return res.status(401).json({
-        //         msg: 'Token no valido - Usuario desactivado'
-        //     });
-        // }
-        // req.usuario = userAutenticado;
-        // next();
+        if (!userAuth.enabled) {
+            return res.status(401).json({
+                msg: 'Usuario desactivado'
+            });
+        }
+        next();
     }
     catch (error) {
-        console.log(error);
         res.status(401).json({
             msg: 'Token no valido'
         });
     }
 });
-module.exports = {
-    validarJWT
-};
+exports.validarJWT = validarJWT;
 //# sourceMappingURL=validate-jwt.js.map

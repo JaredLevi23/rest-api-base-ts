@@ -4,6 +4,7 @@ const express_1 = require("express");
 const express_validator_1 = require("express-validator");
 const user_1 = require("../controllers/user");
 const validate_fields_1 = require("../middlewares/validate-fields");
+const validate_jwt_1 = require("../middlewares/validate-jwt");
 const router = (0, express_1.Router)();
 router.get('/', [], user_1.getUsuarios);
 router.get('/:id', [], user_1.getUsuario);
@@ -14,7 +15,15 @@ router.post('/', [
     (0, express_validator_1.check)('password', 'La contraseña es obligatoria').notEmpty(),
     validate_fields_1.validation
 ], user_1.postUsuario);
-router.put('/', [], user_1.putUsuario);
-router.delete('/', [], user_1.deleteUsuario);
+router.put('/:id', [
+    validate_jwt_1.validarJWT,
+    (0, express_validator_1.check)('id', 'El id debe ser valido').isMongoId(),
+    validate_fields_1.validation
+], user_1.putUsuario);
+router.delete('/:id', [
+    validate_jwt_1.validarJWT,
+    (0, express_validator_1.check)('id', 'El id debe ser valido').isMongoId(),
+    validate_fields_1.validation
+], user_1.deleteUsuario);
 exports.default = router;
 //# sourceMappingURL=user.js.map
